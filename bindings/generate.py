@@ -464,6 +464,16 @@ Healers cannot attack, and should use heal() instead.
 * UnitNotOnMap - the unit or target is not on the map.
 * OutOfRange - the target location is not in range.
 * Overheated - the unit is not ready to attack.''')
+GameController.method(void.type.result(), 'attack_location', [Var(UnitID.type, 'robot_id'), Var(MapLocation.type, 'target')], docs='''Commands a robot to attack a location, dealing the robot's standard amount of damage.
+
+Healers cannot attack, and should use heal() instead.
+
+* NoSuchUnit - the unit does not exist (inside the vision range).
+* TeamNotAllowed - the unit is not on the current player's team.
+* InappropriateUnitType - the unit is not a robot, or is a healer.
+* UnitNotOnMap - the unit or target is not on the map.
+* OutOfRange - the target location is not in range.
+* Overheated - the unit is not ready to attack.''')
 GameController.method(ResearchInfo.type.result(), 'research_info', [], docs='''The research info of the current team, including what branch is currently being researched, the number of rounds left.''')
 GameController.method(boolean.type.result(), 'reset_research', [], docs='''Resets the research queue to be empty. Returns true if the queue was not empty before, and false otherwise.''')
 GameController.method(boolean.type.result(), 'queue_research', [Var(UnitType.type, 'branch')], docs='''Adds a branch to the back of the queue, if it is a valid upgrade, and starts research if it is the first in the queue.
