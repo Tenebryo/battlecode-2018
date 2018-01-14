@@ -18,8 +18,10 @@ use super::world::*;
 /// A single, atomic "change" in the game world.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Delta {
-    /// Commands the given robot to attack a location.
+    /// Commands the given robot to attack a unit.
     Attack { robot_id: UnitID, target_unit_id: UnitID },
+    /// Commands the given robot to attack a location.
+    AttackLocation { robot_id: UnitID, target: MapLocation },
     /// Commands the given ranger to begin sniping the given location.
     BeginSnipe { ranger_id: UnitID, location: MapLocation },
     /// Commands the given worker to blueprint a structure.

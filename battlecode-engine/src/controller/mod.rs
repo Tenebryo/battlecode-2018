@@ -551,6 +551,26 @@ impl GameController {
         Ok(())
     }
 
+    /// Commands a robot to attack a location, dealing the 
+    /// robot's standard amount of damage.
+    ///
+    /// Healers cannot attack, and should use `heal()` instead.
+    ///
+    /// * NoSuchUnit - the unit does not exist (inside the vision range).
+    /// * TeamNotAllowed - the unit is not on the current player's team.
+    /// * InappropriateUnitType - the unit is not a robot, or is a healer.
+    /// * UnitNotOnMap - the unit or target is not on the map.
+    /// * OutOfRange - the target location is not in range.
+    /// * Overheated - the unit is not ready to attack.
+    pub fn attack_location(&mut self, robot_id: UnitID, target: MapLocation) -> Result<(), Error> {
+        let delta = Delta::AttackLocation { robot_id, target };
+        self.world.apply(&delta)?;
+        if self.config.generate_turn_messages {
+            self.turn.changes.push(delta);
+        }
+        Ok(())
+    }
+
     // ************************************************************************
     // ************************* RESEARCH METHODS *****************************
     // ************************************************************************

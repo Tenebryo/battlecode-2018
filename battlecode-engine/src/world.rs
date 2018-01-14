@@ -1086,6 +1086,21 @@ impl GameWorld {
         Ok(())
     }
 
+    /// * NoSuchUnit - the unit does not exist (inside the vision range).
+    /// * TeamNotAllowed - the unit is not on the current player's team.
+    /// * InappropriateUnitType - the unit is not a robot, or is a healer.
+    /// * UnitNotOnMap - the unit or target is not on the map.
+    /// * OutOfRange - the target location is not in range.
+    fn ok_if_can_attack_location(&self, robot_id: UnitID, target: MapLocation) -> Result<(), Error> {
+        if self.my_unit(robot_id)?.unit_type() == UnitType::Healer {
+            Err(GameError::InappropriateUnitType)?;
+        }
+        self.my_unit(robot_id)?.ok_if_on_map()?;
+
+        self.my_unit(robot_id).unwrap().ok_if_within_attack_range(target)?;
+        Ok(())
+    }
+
     /// Whether the robot can attack the given unit, without taking into
     /// account the robot's attack heat. Takes into account only the robot's
     /// attack range, and the location of the robot and target.
@@ -1137,6 +1152,31 @@ impl GameWorld {
             }
         }
         self.damage_unit(target_id, damage);
+        Ok(())
+    }
+
+
+    /// Commands a robot to attack a location, dealing the 
+    /// robot's standard amount of damage.
+    ///
+    /// Healers cannot attack, and should use `heal()` instead.
+    ///
+    /// * NoSuchUnit - the unit does not exist (inside the vision range).
+    /// * TeamNotAllowed - the unit is not on the current player's team.
+    /// * InappropriateUnitType - the unit is not a robot, or is a healer.
+    /// * UnitNotOnMap - the unit or target is not on the map.
+    /// * OutOfRange - the target location is not in range.
+    /// * Overheated - the unit is not ready to attack.
+    pub fn attack_location(&mut self, robot_id: UnitID, target: MapLocation) -> Result<(), Error> {
+        self.ok_if_can_attack_location(robot_id, target)?;
+        self.ok_if_attack_ready(robot_id)?;
+        let damage = self.my_unit_mut(robot_id).unwrap().use_attack();
+        if self.my_unit(robot_id).unwrap().unit_type() == UnitType::Mage {
+            for direction in Direction::all().iter() {
+                self.damage_location(target.add(*direction), damage);
+            }
+        }
+        self.damage_location(target, damage);
         Ok(())
     }
 
@@ -2184,6 +2224,7 @@ impl GameWorld {
     pub(crate) fn apply(&mut self, delta: &Delta) -> Result<(), Error> {
         match *delta {
             Delta::Attack {robot_id, target_unit_id} => self.attack(robot_id, target_unit_id),
+            Delta::AttackLocation { robot_id, target } => self.attack_location(robot_id, target),
             Delta::BeginSnipe {ranger_id, location} => self.begin_snipe(ranger_id, location),
             Delta::Blueprint {worker_id, structure_type, direction} => self.blueprint(worker_id, structure_type, direction),
             Delta::Blink {mage_id, location} => self.blink(mage_id, location),
