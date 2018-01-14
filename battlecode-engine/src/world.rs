@@ -1097,7 +1097,7 @@ impl GameWorld {
         }
         self.my_unit(robot_id)?.ok_if_on_map()?;
 
-        self.my_unit(robot_id).unwrap().ok_if_within_attack_range(target)?;
+        self.my_unit(robot_id).unwrap().ok_if_within_attack_range(OnMap(target))?;
         Ok(())
     }
 
