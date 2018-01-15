@@ -60,16 +60,23 @@ step mv /battlecode_src/battlecode /battlecode
 step ln -s -T /battlecode/c /battlecode-c
 step ln -s -T /battlecode/c/lib/libbattlecode-linux.a /battlecode-c/lib/libbattlecode.a
 step ln -s -T /battlecode/java /battlecode-java
+
+# needed to keep java from trying to compile these
+step rm /battlecode/java/bc/*.java
+
+step cp scripts/player_startup.sh /player_startup.sh
+step cp scripts/suspender.py /suspender.py
 ')
 step docker start $ID -a -i
 
 tput setaf 5
-echo $ docker commit -a "Teh Devs battlecode@mit.edu" $ID -m "Final build step" -c "ENV PYTHONPATH=/battlecode/python" battlebaby-fat
+echo $ docker commit -a "Teh Devs battlecode@mit.edu" -m "Final build step" -c "ENV PYTHONPATH=/battlecode/python" -c 'CMD ["/bin/ash"]' $ID battlebaby-fat
 tput sgr0
-docker commit -a "Teh Devs battlecode@mit.edu" -m "Final build step" $ID battlebaby-fat
-
+docker commit -a "Teh Devs battlecode@mit.edu" -m "Final build step" -c 'CMD ["/bin/ash"]' $ID battlebaby-fat
+# cmd is just there for debugging, we don't use it in prod
 step "docker-squash --version || echo 'please pip3 install docker-squash' && exit 1"
 
 step docker-squash battlebaby-fat -t battlebaby
+
 step mkdir -p docker-artifacts
 step docker save battlebaby -o docker-artifacts/battlebaby.tar

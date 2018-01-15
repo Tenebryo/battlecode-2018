@@ -51,12 +51,13 @@ step cp -r ./battlecode-manager /battlecode/battlecode-manager
 step cp -r ./battlecode-maps /battlecode/battlecode-maps
 step mkdir -p /images
 step cp -r ./docker-artifacts/battlebaby.tar /images
+step cp ./scripts/manager_startup.sh /manager_startup.sh
 ')
 echo "== ID: $ID =="
 step docker start $ID -a -i
 
 tput setaf 5
-echo $ docker commit -a "Teh Devs battlecode@mit.edu" $ID -m "Final build step" -c 'CMD ["sh", "-c", "cd /battlecode/battlecode-manager; . ./start_docker.sh"]' $ID battledaddy
+echo $ docker commit -a "Teh Devs battlecode@mit.edu" $ID -m "Final build step" -c 'CMD ["sh", "/manager_startup.sh"]' $ID battledaddy
 tput sgr0
 
-docker commit -a "Teh Devs battlecode@mit.edu" -m "Final build step" -c 'CMD ["sh", "-c", "cd /battlecode/battlecode-manager; . ./start_docker.sh"]' $ID battledaddy
+docker commit -a "Teh Devs battlecode@mit.edu" -m "Final build step" -c 'CMD ["sh", "/manager_startup.sh"]' $ID battledaddy

@@ -71,6 +71,7 @@ RUN apk add --update --no-cache \
     rm -r /root/.cache
 RUN pip3 install numpy
 
+# Install battlecode bindings
 
 # Install pypy3
 # the pypy3 package we're using depends on an older version of libcrypto, which is only available in alpine 3.6
@@ -117,4 +118,8 @@ RUN apk add ncurses
 RUN apk add mono --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 ENV PYTHONPATH=/battlecode/python
+
+# for timing control
+RUN apk add shadow procps && useradd -M player -U -u 6147 && apk del shadow
+
 # remaining build is run in sandboxbuild.sh
